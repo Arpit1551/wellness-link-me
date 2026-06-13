@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 
 const nav = [
   { label: "Home", to: "/" },
-  { label: "Services", to: "/#services" },
+  { label: "Services", to: "/" },
   { label: "Contact", to: "/contact" },
 ] as const;
 
@@ -19,13 +19,13 @@ export function SiteHeader() {
           <span>BrightSmile<span className="text-primary"> Virtual</span></span>
         </Link>
         <nav className="hidden items-center gap-8 md:flex" aria-label="Main navigation">
-          {nav.map((item) => <Link key={item.label} to={item.to} className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{item.label}</Link>)}
+          {nav.map((item) => item.label === "Services" ? <a key={item.label} href="/#services" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{item.label}</a> : <Link key={item.label} to={item.to} className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">{item.label}</Link>)}
           <Link to="/admin" className="text-sm font-medium text-muted-foreground hover:text-foreground">Doctor login</Link>
           <Button variant="hero" asChild><Link to="/book">Book appointment</Link></Button>
         </nav>
         <Button className="md:hidden" variant="ghost" size="icon" aria-label="Toggle menu" onClick={() => setOpen((value) => !value)}><Menu /></Button>
       </div>
-      {open && <nav className="grid gap-2 border-t border-border bg-background p-5 md:hidden">{nav.map((item) => <Link key={item.label} to={item.to} className="rounded-lg px-3 py-2 text-sm font-medium" onClick={() => setOpen(false)}>{item.label}</Link>)}<Button asChild><Link to="/book">Book appointment</Link></Button></nav>}
+      {open && <nav className="grid gap-2 border-t border-border bg-background p-5 md:hidden">{nav.map((item) => item.label === "Services" ? <a key={item.label} href="/#services" className="rounded-lg px-3 py-2 text-sm font-medium">{item.label}</a> : <Link key={item.label} to={item.to} className="rounded-lg px-3 py-2 text-sm font-medium" onClick={() => setOpen(false)}>{item.label}</Link>)}<Button asChild><Link to="/book">Book appointment</Link></Button></nav>}
     </header>
   );
 }

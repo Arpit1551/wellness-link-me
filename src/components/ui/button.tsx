@@ -12,7 +12,8 @@ const buttonVariants = cva(
         default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
         hero: "rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20 hover:-translate-y-0.5 hover:bg-primary/90",
         soft: "rounded-xl bg-primary/10 text-primary shadow-none hover:bg-primary/15",
-        inverse: "rounded-xl bg-primary-foreground text-primary shadow-lg hover:bg-primary-foreground/90",
+        inverse:
+          "rounded-xl bg-primary-foreground text-primary shadow-lg hover:bg-primary-foreground/90",
         destructive: "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
         outline:
           "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",

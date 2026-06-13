@@ -12,34 +12,107 @@ const bookingSchema = z.object({
   notes: z.string().trim().max(1000).optional(),
 });
 
-export const createBooking = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((input) => bookingSchema.parse(input)).handler(async ({ data, context }) => {
-  const { data: setting } = await context.supabase.from("clinic_settings").select("appointment_duration").limit(1).maybeSingle();
-  const { data: appointment, error } = await context.supabase.from("appointments").insert({ patient_id: context.userId, patient_name: data.patientName, patient_email: data.patientEmail, patient_phone: data.patientPhone, service: data.service, appointment_date: data.appointmentDate, appointment_time: data.appointmentTime, duration: setting?.appointment_duration ?? 15, notes: data.notes || null }).select("id").single();
-  if (error || !appointment) throw new Error(error?.message || "Unable to create appointment");
-  return appointment;
-});
+export const createBooking = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => bookingSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: setting } = await context.supabase
+      .from("clinic_settings")
+      .select("appointment_duration")
+      .limit(1)
+      .maybeSingle();
+    const { data: appointment, error } = await context.supabase
+      .from("appointments")
+      .insert({
+        patient_id: context.userId,
+        patient_name: data.patientName,
+        patient_email: data.patientEmail,
+        patient_phone: data.patientPhone,
+        service: data.service,
+        appointment_date: data.appointmentDate,
+        appointment_time: data.appointmentTime,
+        duration: setting?.appointment_duration ?? 15,
+        notes: data.notes || null,
+      })
+      .select("id")
+      .single();
+    if (error || !appointment) throw new Error(error?.message || "Unable to create appointment");
+    return appointment;
+  });
 
-export const completeTestPayment = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((input) => z.object({ appointmentId: z.string().uuid() }).parse(input)).handler(async ({ data, context }) => {
-  const { data: appointment, error } = await context.supabase.from("appointments").select("*").eq("id", data.appointmentId).eq("patient_id", context.userId).single();
-  if (error || !appointment) throw new Error("Appointment not found");
-  const { data: setting } = await context.supabase.from("clinic_settings").select("consultation_fee").limit(1).single();
-  const start = new Date(`${appointment.appointment_date}T${appointment.appointment_time}`);
-  const end = new Date(start.getTime() + appointment.duration * 60_000);
-  const meetLink = `https://meet.google.com/lookup/brightsmile-${appointment.id.slice(0, 8)}`;
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const paymentId = `pay_test_${crypto.randomUUID().replaceAll("-", "").slice(0, 16)}`;
-  const { error: paymentError } = await supabaseAdmin.from("payments").upsert({ appointment_id: appointment.id, razorpay_order_id: `order_test_${appointment.id.slice(0, 12)}`, razorpay_payment_id: paymentId, amount: setting?.consultation_fee ?? 999, currency: "INR", status: "SUCCESS" }, { onConflict: "appointment_id" });
-  if (paymentError) throw new Error(paymentError.message);
-  await supabaseAdmin.from("meetings").upsert({ appointment_id: appointment.id, meet_link: meetLink, start_time: start.toISOString(), end_time: end.toISOString() }, { onConflict: "appointment_id" });
-  await supabaseAdmin.from("appointments").update({ status: "PAID", meeting_link: meetLink }).eq("id", appointment.id);
-  return { appointmentId: appointment.id, paymentId, meetLink };
-});
+export const completeTestPayment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ appointmentId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: appointment, error } = await context.supabase
+      .from("appointments")
+      .select("*")
+      .eq("id", data.appointmentId)
+      .eq("patient_id", context.userId)
+      .single();
+    if (error || !appointment) throw new Error("Appointment not found");
+    const { data: setting } = await context.supabase
+      .from("clinic_settings")
+      .select("consultation_fee")
+      .limit(1)
+      .single();
+    const start = new Date(`${appointment.appointment_date}T${appointment.appointment_time}`);
+    const end = new Date(start.getTime() + appointment.duration * 60_000);
+    const meetLink = `https://meet.google.com/lookup/brightsmile-${appointment.id.slice(0, 8)}`;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const paymentId = `pay_test_${crypto.randomUUID().replaceAll("-", "").slice(0, 16)}`;
+    const { error: paymentError } = await supabaseAdmin
+      .from("payments")
+      .upsert(
+        {
+          appointment_id: appointment.id,
+          razorpay_order_id: `order_test_${appointment.id.slice(0, 12)}`,
+          razorpay_payment_id: paymentId,
+          amount: setting?.consultation_fee ?? 999,
+          currency: "INR",
+          status: "SUCCESS",
+        },
+        { onConflict: "appointment_id" },
+      );
+    if (paymentError) throw new Error(paymentError.message);
+    await supabaseAdmin
+      .from("meetings")
+      .upsert(
+        {
+          appointment_id: appointment.id,
+          meet_link: meetLink,
+          start_time: start.toISOString(),
+          end_time: end.toISOString(),
+        },
+        { onConflict: "appointment_id" },
+      );
+    await supabaseAdmin
+      .from("appointments")
+      .update({ status: "PAID", meeting_link: meetLink })
+      .eq("id", appointment.id);
+    return { appointmentId: appointment.id, paymentId, meetLink };
+  });
 
-export const updateAppointmentStatus = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((input) => z.object({ appointmentId: z.string().uuid(), status: z.enum(["COMPLETED", "CANCELLED"]) }).parse(input)).handler(async ({ data, context }) => {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: role } = await supabaseAdmin.from("user_roles").select("id").eq("user_id", context.userId).eq("role", "DOCTOR").maybeSingle();
-  if (!role) throw new Error("Forbidden");
-  const { error } = await supabaseAdmin.from("appointments").update({ status: data.status }).eq("id", data.appointmentId);
-  if (error) throw new Error(error.message);
-  return { ok: true };
-});
+export const updateAppointmentStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({ appointmentId: z.string().uuid(), status: z.enum(["COMPLETED", "CANCELLED"]) })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: role } = await supabaseAdmin
+      .from("user_roles")
+      .select("id")
+      .eq("user_id", context.userId)
+      .eq("role", "DOCTOR")
+      .maybeSingle();
+    if (!role) throw new Error("Forbidden");
+    const { error } = await supabaseAdmin
+      .from("appointments")
+      .update({ status: data.status })
+      .eq("id", data.appointmentId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });

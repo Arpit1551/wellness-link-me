@@ -1,0 +1,148 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { Check, Copy, Search, X } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { AdminShell } from "@/components/admin-shell";
+import { AuthGuard } from "@/components/auth-guard";
+import { StatusBadge } from "@/components/status-badge";
+import { AdminLoading } from "@/components/admin-loading";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { useClinicData } from "@/hooks/use-clinic-data";
+import { updateAppointmentStatus } from "@/lib/clinic.functions";
+type Appt = {
+  id: string;
+  patient_name: string;
+  patient_email: string;
+  service: string;
+  appointment_date: string;
+  appointment_time: string;
+  status: string;
+  meeting_link: string | null;
+};
+export const Route = createFileRoute("/admin/appointments")({
+  head: () => ({ meta: [{ title: "Appointments | BrightSmile Admin" }] }),
+  component: Appointments,
+});
+function Appointments() {
+  const { data, loading, reload } = useClinicData<Appt>("appointments");
+  const update = useServerFn(updateAppointmentStatus);
+  const [query, setQuery] = useState("");
+  const filtered = useMemo(
+    () =>
+      data.filter((a) =>
+        `${a.patient_name} ${a.patient_email} ${a.status}`
+          .toLowerCase()
+          .includes(query.toLowerCase()),
+      ),
+    [data, query],
+  );
+  const change = async (id: string, status: "COMPLETED" | "CANCELLED") => {
+    await update({ data: { appointmentId: id, status } });
+    reload();
+  };
+  return (
+    <AuthGuard>
+      <AdminShell title="Appointments" subtitle="Review and manage patient bookings">
+        <div className="mb-5 max-w-sm">
+          <div className="relative">
+            <Search className="absolute left-3 top-3 size-4 text-muted-foreground" />
+            <Input
+              className="h-10 pl-9"
+              placeholder="Search patient or status…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
+        </div>
+        <section className="overflow-hidden rounded-2xl border border-border bg-background">
+          {loading ? (
+            <AdminLoading />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Patient</TableHead>
+                  <TableHead>Date & time</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Meeting</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((a) => (
+                  <TableRow key={a.id}>
+                    <TableCell>
+                      <strong>{a.patient_name}</strong>
+                      <p className="text-xs text-muted-foreground">{a.patient_email}</p>
+                    </TableCell>
+                    <TableCell>
+                      {a.appointment_date}
+                      <p className="text-xs text-muted-foreground">
+                        {a.appointment_time} · {a.service}
+                      </p>
+                    </TableCell>
+                    <TableCell>
+                      <StatusBadge status={a.status} />
+                    </TableCell>
+                    <TableCell>
+                      {a.meeting_link ? (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => navigator.clipboard.writeText(a.meeting_link ?? "")}
+                        >
+                          <Copy />
+                          Copy link
+                        </Button>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">Not generated</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="Mark complete"
+                          disabled={a.status === "COMPLETED" || a.status === "CANCELLED"}
+                          onClick={() => change(a.id, "COMPLETED")}
+                        >
+                          <Check className="text-success" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="Cancel"
+                          disabled={a.status === "CANCELLED" || a.status === "COMPLETED"}
+                          onClick={() => change(a.id, "CANCELLED")}
+                        >
+                          <X className="text-destructive" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {!filtered.length && (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
+                      No appointments found.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          )}
+        </section>
+      </AdminShell>
+    </AuthGuard>
+  );
+}

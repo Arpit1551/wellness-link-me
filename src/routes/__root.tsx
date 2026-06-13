@@ -87,6 +87,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "BrightSmile Virtual Dental" },
+      { property: "og:description", content: "Private virtual dental consultations with BrightSmile." },
+      { name: "twitter:description", content: "Private virtual dental consultations with BrightSmile." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0ce7f20d-44e3-4c31-b791-c7fb18194800/id-preview-35704ed9--5ebbae16-d9f3-4dd8-ad55-c5d8d8b4c185.lovable.app-1781347621255.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0ce7f20d-44e3-4c31-b791-c7fb18194800/id-preview-35704ed9--5ebbae16-d9f3-4dd8-ad55-c5d8d8b4c185.lovable.app-1781347621255.png" },
     ],
     links: [
       {

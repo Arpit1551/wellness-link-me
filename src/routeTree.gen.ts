@@ -14,7 +14,10 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ConfirmationRouteImport } from './routes/confirmation'
 import { Route as BookRouteImport } from './routes/book'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
+import { Route as AdminAppointmentsRouteImport } from './routes/admin.appointments'
 
 const PaymentRoute = PaymentRouteImport.update({
   id: '/payment',
@@ -41,54 +44,100 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAppointmentsRoute = AdminAppointmentsRouteImport.update({
+  id: '/appointments',
+  path: '/appointments',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/book': typeof BookRoute
   '/confirmation': typeof ConfirmationRoute
   '/contact': typeof ContactRoute
   '/payment': typeof PaymentRoute
+  '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/payments': typeof AdminPaymentsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/book': typeof BookRoute
   '/confirmation': typeof ConfirmationRoute
   '/contact': typeof ContactRoute
   '/payment': typeof PaymentRoute
+  '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/payments': typeof AdminPaymentsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/book': typeof BookRoute
   '/confirmation': typeof ConfirmationRoute
   '/contact': typeof ContactRoute
   '/payment': typeof PaymentRoute
+  '/admin/appointments': typeof AdminAppointmentsRoute
+  '/admin/payments': typeof AdminPaymentsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/book' | '/confirmation' | '/contact' | '/payment'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/book' | '/confirmation' | '/contact' | '/payment'
-  id:
-    | '__root__'
+  fullPaths:
     | '/'
+    | '/admin'
     | '/auth'
     | '/book'
     | '/confirmation'
     | '/contact'
     | '/payment'
+    | '/admin/appointments'
+    | '/admin/payments'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/book'
+    | '/confirmation'
+    | '/contact'
+    | '/payment'
+    | '/admin/appointments'
+    | '/admin/payments'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/auth'
+    | '/book'
+    | '/confirmation'
+    | '/contact'
+    | '/payment'
+    | '/admin/appointments'
+    | '/admin/payments'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   BookRoute: typeof BookRoute
   ConfirmationRoute: typeof ConfirmationRoute
@@ -133,6 +182,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -140,11 +196,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/payments': {
+      id: '/admin/payments'
+      path: '/payments'
+      fullPath: '/admin/payments'
+      preLoaderRoute: typeof AdminPaymentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/appointments': {
+      id: '/admin/appointments'
+      path: '/appointments'
+      fullPath: '/admin/appointments'
+      preLoaderRoute: typeof AdminAppointmentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
+interface AdminRouteChildren {
+  AdminAppointmentsRoute: typeof AdminAppointmentsRoute
+  AdminPaymentsRoute: typeof AdminPaymentsRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminAppointmentsRoute: AdminAppointmentsRoute,
+  AdminPaymentsRoute: AdminPaymentsRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   BookRoute: BookRoute,
   ConfirmationRoute: ConfirmationRoute,
@@ -154,3 +237,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

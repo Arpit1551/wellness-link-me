@@ -18,6 +18,7 @@ export function useClinicData<T>(
   }, [table, select]);
   useEffect(() => {
     load();
+    const refresh = window.setInterval(load, 15_000);
     const channel =
       table === "clinic_settings"
         ? null
@@ -26,6 +27,7 @@ export function useClinicData<T>(
             .on("postgres_changes", { event: "*", schema: "public", table }, load)
             .subscribe();
     return () => {
+      window.clearInterval(refresh);
       if (channel) supabase.removeChannel(channel);
     };
   }, [load, table]);

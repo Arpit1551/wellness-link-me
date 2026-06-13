@@ -8,6 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    next: typeof search.next === "string" && search.next.startsWith("/") ? search.next : "/book",
+  }),
   head: () => ({
     meta: [
       { title: "Sign in | BrightSmile" },
@@ -18,6 +21,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
+  const { next } = Route.useSearch();
   const navigate = useNavigate();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [name, setName] = useState("");
@@ -46,7 +50,7 @@ function AuthPage() {
       setError("Check your email to confirm your account.");
       return;
     }
-    navigate({ to: "/book" });
+    window.location.assign(next);
   };
   const google = async () => {
     const result = await lovable.auth.signInWithOAuth("google", {

@@ -61,31 +61,27 @@ export const completeTestPayment = createServerFn({ method: "POST" })
     const meetLink = `https://meet.google.com/lookup/brightsmile-${appointment.id.slice(0, 8)}`;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const paymentId = `pay_test_${crypto.randomUUID().replaceAll("-", "").slice(0, 16)}`;
-    const { error: paymentError } = await supabaseAdmin
-      .from("payments")
-      .upsert(
-        {
-          appointment_id: appointment.id,
-          razorpay_order_id: `order_test_${appointment.id.slice(0, 12)}`,
-          razorpay_payment_id: paymentId,
-          amount: setting?.consultation_fee ?? 999,
-          currency: "INR",
-          status: "SUCCESS",
-        },
-        { onConflict: "appointment_id" },
-      );
+    const { error: paymentError } = await supabaseAdmin.from("payments").upsert(
+      {
+        appointment_id: appointment.id,
+        razorpay_order_id: `order_test_${appointment.id.slice(0, 12)}`,
+        razorpay_payment_id: paymentId,
+        amount: setting?.consultation_fee ?? 999,
+        currency: "INR",
+        status: "SUCCESS",
+      },
+      { onConflict: "appointment_id" },
+    );
     if (paymentError) throw new Error(paymentError.message);
-    await supabaseAdmin
-      .from("meetings")
-      .upsert(
-        {
-          appointment_id: appointment.id,
-          meet_link: meetLink,
-          start_time: start.toISOString(),
-          end_time: end.toISOString(),
-        },
-        { onConflict: "appointment_id" },
-      );
+    await supabaseAdmin.from("meetings").upsert(
+      {
+        appointment_id: appointment.id,
+        meet_link: meetLink,
+        start_time: start.toISOString(),
+        end_time: end.toISOString(),
+      },
+      { onConflict: "appointment_id" },
+    );
     await supabaseAdmin
       .from("appointments")
       .update({ status: "PAID", meeting_link: meetLink })

@@ -36,9 +36,10 @@ export const completeTestPayment = createServerFn({ method: "POST" }).middleware
 });
 
 export const updateAppointmentStatus = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).inputValidator((input) => z.object({ appointmentId: z.string().uuid(), status: z.enum(["COMPLETED", "CANCELLED"]) }).parse(input)).handler(async ({ data, context }) => {
-  const { data: isDoctor } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "DOCTOR" });
-  if (!isDoctor) throw new Error("Forbidden");
-  const { error } = await context.supabase.from("appointments").update({ status: data.status }).eq("id", data.appointmentId);
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data: role } = await supabaseAdmin.from("user_roles").select("id").eq("user_id", context.userId).eq("role", "DOCTOR").maybeSingle();
+  if (!role) throw new Error("Forbidden");
+  const { error } = await supabaseAdmin.from("appointments").update({ status: data.status }).eq("id", data.appointmentId);
   if (error) throw new Error(error.message);
   return { ok: true };
 });

@@ -4,18 +4,22 @@ import { supabase } from "@/integrations/supabase/client";
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<"loading" | "ready" | "forbidden">("loading");
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
+    supabase.auth.getUser().then(async ({ data, error }) => {
+      if (error) {
+        setState("forbidden");
+        return;
+      }
       if (!data.user) {
         window.location.assign("/auth?next=/admin");
         return;
       }
-      const { data: role } = await supabase
+      const { data: role, error: roleError } = await supabase
         .from("user_roles")
         .select("role")
         .eq("user_id", data.user.id)
         .eq("role", "DOCTOR")
         .maybeSingle();
-      setState(role ? "ready" : "forbidden");
+      setState(role && !roleError ? "ready" : "forbidden");
     });
   }, []);
   if (state === "loading")

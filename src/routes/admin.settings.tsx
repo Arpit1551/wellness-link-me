@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Save } from "lucide-react";
+import { AdminLoading } from "@/components/admin-loading";
 import { AdminShell } from "@/components/admin-shell";
 import { AuthGuard } from "@/components/auth-guard";
 import { Button } from "@/components/ui/button";
@@ -25,13 +26,21 @@ function SettingsPage() {
     consultation_fee: 999,
   });
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState("");
   useEffect(() => {
     supabase
       .from("clinic_settings")
       .select("*")
       .limit(1)
       .single()
-      .then(({ data }) => {
+      .then(({ data, error }) => {
+        if (error || !data) {
+          setLoadError(error?.message ?? "Clinic settings were not found.");
+          setLoading(false);
+          return;
+        }
         if (data) {
           setId(data.id);
           setForm({
@@ -45,18 +54,28 @@ function SettingsPage() {
             consultation_fee: data.consultation_fee,
           });
         }
+        setLoading(false);
       });
   }, []);
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage("");
+    setSaving(true);
     const { error } = await supabase.from("clinic_settings").update(form).eq("id", id);
     setMessage(error ? error.message : "Settings saved successfully.");
+    setSaving(false);
   };
   return (
     <AuthGuard>
       <AdminShell title="Settings" subtitle="Manage your clinic profile and appointment defaults">
-        <form
+        {loading ? (
+          <div className="max-w-4xl rounded-2xl border border-border bg-background"><AdminLoading /></div>
+        ) : loadError ? (
+          <div className="max-w-4xl rounded-2xl border border-border bg-background p-10 text-center">
+            <p className="font-semibold text-destructive">Clinic settings could not be loaded.</p>
+            <p className="mt-2 text-sm text-muted-foreground">{loadError}</p>
+          </div>
+        ) : <form
           onSubmit={save}
           className="max-w-4xl rounded-2xl border border-border bg-background p-6 shadow-sm"
         >
@@ -112,11 +131,11 @@ function SettingsPage() {
               {message}
             </p>
           )}
-          <Button className="mt-6" size="lg">
+          <Button className="mt-6" size="lg" disabled={saving}>
             <Save />
-            Save settings
+            {saving ? "Saving…" : "Save settings"}
           </Button>
-        </form>
+        </form>}
       </AdminShell>
     </AuthGuard>
   );

@@ -33,7 +33,7 @@ export const Route = createFileRoute("/admin/")({
   component: Dashboard,
 });
 function Dashboard() {
-  const { data, loading } = useClinicData<Appointment>("appointments");
+  const { data, loading, error, reload } = useClinicData<Appointment>("appointments");
   const paid = data.filter((a) => a.status === "PAID").length;
   const completed = data.filter((a) => a.status === "COMPLETED").length;
   const upcoming = data
@@ -75,6 +75,11 @@ function Dashboard() {
           </div>
           {loading ? (
             <AdminLoading />
+          ) : error ? (
+            <div className="p-10 text-center">
+              <p className="font-semibold text-destructive">Dashboard data could not be loaded.</p>
+              <Button className="mt-4" variant="outline" onClick={reload}>Try again</Button>
+            </div>
           ) : (
             <Table>
               <TableHeader>

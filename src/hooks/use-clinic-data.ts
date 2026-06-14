@@ -7,12 +7,18 @@ export function useClinicData<T>(
 ) {
   const [data, setData] = useState<T[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const load = useCallback(async () => {
-    setLoading(true);
+    setError("");
     const result = await supabase
       .from(table)
       .select(select)
       .order("created_at", { ascending: false });
+    if (result.error) {
+      setError(result.error.message);
+      setLoading(false);
+      return;
+    }
     setData((result.data ?? []) as T[]);
     setLoading(false);
   }, [table, select]);
@@ -31,5 +37,5 @@ export function useClinicData<T>(
       if (channel) supabase.removeChannel(channel);
     };
   }, [load, table]);
-  return { data, loading, reload: load };
+  return { data, loading, error, reload: load };
 }

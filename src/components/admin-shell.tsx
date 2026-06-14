@@ -11,6 +11,8 @@ import {
   X,
 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -32,10 +34,16 @@ export function AdminShell({
   children: React.ReactNode;
 }) {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const logout = async () => {
+    setSigningOut(true);
+    await queryClient.cancelQueries();
+    queryClient.clear();
     await supabase.auth.signOut();
-    window.location.assign("/auth");
+    navigate({ to: "/auth", replace: true });
   };
   return (
     <div className="min-h-screen bg-muted/35">
@@ -76,9 +84,14 @@ export function AdminShell({
           })}
         </nav>
         <div className="border-t border-sidebar-border p-4">
-          <Button variant="ghost" className="w-full justify-start" onClick={logout}>
+          <Button
+            variant="ghost"
+            className="w-full justify-start"
+            onClick={logout}
+            disabled={signingOut}
+          >
             <LogOut />
-            Sign out
+            {signingOut ? "Signing out…" : "Sign out"}
           </Button>
         </div>
       </aside>

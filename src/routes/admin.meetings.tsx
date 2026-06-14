@@ -17,7 +17,7 @@ export const Route = createFileRoute("/admin/meetings")({
   component: Meetings,
 });
 function Meetings() {
-  const { data, loading } = useClinicData<Meeting>("meetings");
+  const { data, loading, error, reload } = useClinicData<Meeting>("meetings");
   const now = Date.now();
   const upcoming = data.filter((m) => new Date(m.end_time).getTime() >= now);
   const past = data.filter((m) => new Date(m.end_time).getTime() < now);
@@ -26,6 +26,11 @@ function Meetings() {
       <AdminShell title="Meetings" subtitle="Join upcoming sessions and review past consultations">
         {loading ? (
           <AdminLoading />
+        ) : error ? (
+          <div className="rounded-2xl border border-border bg-background p-10 text-center">
+            <p className="font-semibold text-destructive">Meetings could not be loaded.</p>
+            <Button className="mt-4" variant="outline" onClick={reload}>Try again</Button>
+          </div>
         ) : (
           <div className="space-y-8">
             <MeetingSection title="Upcoming meetings" items={upcoming} />

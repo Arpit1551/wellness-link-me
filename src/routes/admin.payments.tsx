@@ -4,6 +4,7 @@ import { AdminShell } from "@/components/admin-shell";
 import { AuthGuard } from "@/components/auth-guard";
 import { StatusBadge } from "@/components/status-badge";
 import { AdminLoading } from "@/components/admin-loading";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,

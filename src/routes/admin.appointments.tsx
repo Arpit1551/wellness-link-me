@@ -9,6 +9,13 @@ import { AdminLoading } from "@/components/admin-loading";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -33,26 +40,39 @@ export const Route = createFileRoute("/admin/appointments")({
   component: Appointments,
 });
 function Appointments() {
-  const { data, loading, reload } = useClinicData<Appt>("appointments");
+  const { data, loading, error, reload } = useClinicData<Appt>("appointments");
   const update = useServerFn(updateAppointmentStatus);
   const [query, setQuery] = useState("");
+  const [status, setStatus] = useState("ALL");
+  const [updatingId, setUpdatingId] = useState("");
+  const [actionError, setActionError] = useState("");
   const filtered = useMemo(
     () =>
-      data.filter((a) =>
-        `${a.patient_name} ${a.patient_email} ${a.status}`
-          .toLowerCase()
-          .includes(query.toLowerCase()),
+      data.filter(
+        (a) =>
+          (status === "ALL" || a.status === status) &&
+          `${a.patient_name} ${a.patient_email} ${a.service}`
+            .toLowerCase()
+            .includes(query.toLowerCase()),
       ),
-    [data, query],
+    [data, query, status],
   );
   const change = async (id: string, status: "COMPLETED" | "CANCELLED") => {
-    await update({ data: { appointmentId: id, status } });
-    reload();
+    setUpdatingId(id);
+    setActionError("");
+    try {
+      await update({ data: { appointmentId: id, status } });
+      await reload();
+    } catch (cause) {
+      setActionError(cause instanceof Error ? cause.message : "The appointment could not be updated.");
+    } finally {
+      setUpdatingId("");
+    }
   };
   return (
     <AuthGuard>
       <AdminShell title="Appointments" subtitle="Review and manage patient bookings">
-        <div className="mb-5 max-w-sm">
+        <div className="mb-5 flex flex-col gap-3 sm:flex-row">
           <div className="relative">
             <Search className="absolute left-3 top-3 size-4 text-muted-foreground" />
             <Input
@@ -62,10 +82,28 @@ function Appointments() {
               onChange={(e) => setQuery(e.target.value)}
             />
           </div>
+          <Select value={status} onValueChange={setStatus}>
+            <SelectTrigger className="h-10 w-full sm:w-48" aria-label="Filter by status">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All statuses</SelectItem>
+              <SelectItem value="BOOKED">Booked</SelectItem>
+              <SelectItem value="PAID">Paid</SelectItem>
+              <SelectItem value="COMPLETED">Completed</SelectItem>
+              <SelectItem value="CANCELLED">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
+        {actionError && <p className="mb-4 rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{actionError}</p>}
         <section className="overflow-hidden rounded-2xl border border-border bg-background">
           {loading ? (
             <AdminLoading />
+          ) : error ? (
+            <div className="p-10 text-center">
+              <p className="font-semibold text-destructive">Appointments could not be loaded.</p>
+              <Button className="mt-4" variant="outline" onClick={reload}>Try again</Button>
+            </div>
           ) : (
             <Table>
               <TableHeader>
@@ -113,7 +151,7 @@ function Appointments() {
                           variant="ghost"
                           size="icon"
                           title="Mark complete"
-                          disabled={a.status === "COMPLETED" || a.status === "CANCELLED"}
+                          disabled={updatingId === a.id || a.status === "COMPLETED" || a.status === "CANCELLED"}
                           onClick={() => change(a.id, "COMPLETED")}
                         >
                           <Check className="text-success" />
@@ -122,7 +160,7 @@ function Appointments() {
                           variant="ghost"
                           size="icon"
                           title="Cancel"
-                          disabled={a.status === "CANCELLED" || a.status === "COMPLETED"}
+                          disabled={updatingId === a.id || a.status === "CANCELLED" || a.status === "COMPLETED"}
                           onClick={() => change(a.id, "CANCELLED")}
                         >
                           <X className="text-destructive" />

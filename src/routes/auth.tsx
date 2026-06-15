@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Chrome, LockKeyhole, Stethoscope } from "lucide-react";
+import { Activity, Chrome, LockKeyhole } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,8 +13,8 @@ export const Route = createFileRoute("/auth")({
   }),
   head: () => ({
     meta: [
-      { title: "Sign in | BrightSmile" },
-      { name: "description", content: "Sign in or create your BrightSmile patient account." },
+      { title: "Sign in | Luka Moves" },
+      { name: "description", content: "Sign in or create your Luka Moves athlete account." },
     ],
   }),
   component: AuthPage,
@@ -22,7 +22,6 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const { next } = Route.useSearch();
-  const navigate = useNavigate();
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -61,26 +60,21 @@ function AuthPage() {
   return (
     <main className="auth-wash grid min-h-screen place-items-center px-5 py-12">
       <div className="w-full max-w-md">
-        <a
-          href="/"
-          className="mb-8 flex items-center justify-center gap-3 font-display text-xl font-bold"
-        >
+        <a href="/" className="mb-8 flex items-center justify-center gap-3 font-display text-xl font-bold">
           <span className="grid size-11 place-items-center rounded-xl bg-primary text-primary-foreground">
-            <Stethoscope />
+            <Activity strokeWidth={2.5} />
           </span>
-          BrightSmile Virtual
+          LUKA MOVES
         </a>
-        <div className="rounded-3xl border border-border bg-background/90 p-7 shadow-2xl shadow-primary/10 backdrop-blur md:p-9">
+        <div className="rounded-3xl border border-border bg-card/90 p-7 shadow-2xl shadow-primary/15 backdrop-blur md:p-9">
           <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-primary/10 text-primary">
             <LockKeyhole />
           </span>
           <h1 className="mt-5 text-center font-display text-3xl font-bold">
-            {mode === "login" ? "Welcome back" : "Create patient account"}
+            {mode === "login" ? "Welcome back, athlete" : "Create your athlete account"}
           </h1>
           <p className="mt-2 text-center text-sm text-muted-foreground">
-            {mode === "login"
-              ? "Sign in to manage your care"
-              : "A secure account is required to book"}
+            {mode === "login" ? "Sign in to manage your sessions" : "A secure account is required to book"}
           </p>
           <Button className="mt-7 w-full" variant="outline" size="lg" onClick={google}>
             <Chrome /> Continue with Google
@@ -94,45 +88,18 @@ function AuthPage() {
             {mode === "signup" && (
               <div>
                 <Label htmlFor="name">Full name</Label>
-                <Input
-                  id="name"
-                  className="mt-2 h-11"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  minLength={2}
-                  maxLength={100}
-                />
+                <Input id="name" className="mt-2 h-11" value={name} onChange={(e) => setName(e.target.value)} required minLength={2} maxLength={100} />
               </div>
             )}
             <div>
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                className="mt-2 h-11"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                maxLength={255}
-              />
+              <Input id="email" type="email" className="mt-2 h-11" value={email} onChange={(e) => setEmail(e.target.value)} required maxLength={255} />
             </div>
             <div>
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                className="mt-2 h-11"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                minLength={8}
-                maxLength={72}
-              />
+              <Input id="password" type="password" className="mt-2 h-11" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={8} maxLength={72} />
             </div>
-            {error && (
-              <p className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</p>
-            )}
+            {error && <p className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">{error}</p>}
             <Button className="w-full" size="lg" disabled={loading}>
               {loading ? "Please wait…" : mode === "login" ? "Sign in" : "Create account"}
             </Button>
@@ -144,7 +111,7 @@ function AuthPage() {
               setError("");
             }}
           >
-            {mode === "login" ? "New patient? Create an account" : "Already registered? Sign in"}
+            {mode === "login" ? "New athlete? Create an account" : "Already registered? Sign in"}
           </button>
         </div>
       </div>

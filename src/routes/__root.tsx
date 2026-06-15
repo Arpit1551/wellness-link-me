@@ -17,16 +17,16 @@ function NotFoundComponent() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
+        <h2 className="mt-4 text-xl font-semibold">Off the mat</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+          That page doesn't exist. Let's get you back on track.
         </p>
         <div className="mt-6">
           <Link
             to="/"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Go home
+            Back to Luka Moves
           </Link>
         </div>
       </div>
@@ -44,11 +44,9 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
-        </h1>
+        <h1 className="text-xl font-semibold tracking-tight">Something broke</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          Try again, or head back to the homepage.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -56,13 +54,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
               router.invalidate();
               reset();
             }}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             Try again
           </button>
           <a
             href="/"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
+            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-accent"
           >
             Go home
           </a>
@@ -77,32 +75,33 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "BrightSmile Virtual Dental" },
-      { name: "description", content: "Private virtual dental consultations with BrightSmile." },
-      { name: "author", content: "BrightSmile Virtual Dental" },
-      { property: "og:title", content: "BrightSmile Virtual Dental" },
+      { title: "Luka Moves — Calisthenics & Movement Coaching" },
+      {
+        name: "description",
+        content:
+          "Elite 1-1 calisthenics coaching, mobility programs, and movement communities with Coach Luka.",
+      },
+      { name: "author", content: "Luka Moves" },
+      { property: "og:title", content: "Luka Moves — Calisthenics & Movement Coaching" },
       {
         property: "og:description",
-        content: "Professional dental advice from the comfort of home.",
+        content: "Train discipline, mobility and strength with Coach Luka.",
       },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "BrightSmile Virtual Dental" },
-      { property: "og:description", content: "Private virtual dental consultations with BrightSmile." },
-      { name: "twitter:description", content: "Private virtual dental consultations with BrightSmile." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0ce7f20d-44e3-4c31-b791-c7fb18194800/id-preview-35704ed9--5ebbae16-d9f3-4dd8-ad55-c5d8d8b4c185.lovable.app-1781347621255.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/0ce7f20d-44e3-4c31-b791-c7fb18194800/id-preview-35704ed9--5ebbae16-d9f3-4dd8-ad55-c5d8d8b4c185.lovable.app-1781347621255.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Luka Moves — Calisthenics & Movement Coaching" },
+      {
+        name: "twitter:description",
+        content: "Train discipline, mobility and strength with Coach Luka.",
+      },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap",
       },
     ],
   }),
@@ -114,7 +113,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <HeadContent />
       </head>
@@ -128,10 +127,8 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
     </QueryClientProvider>
   );

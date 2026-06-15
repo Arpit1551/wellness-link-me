@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CalendarCheck, CreditCard, IndianRupee, Video } from "lucide-react";
+import { CalendarCheck, DollarSign, Repeat, Video } from "lucide-react";
 import { AdminShell } from "@/components/admin-shell";
 import { AuthGuard } from "@/components/auth-guard";
 import { StatusBadge } from "@/components/status-badge";
@@ -23,31 +23,59 @@ type Appointment = {
   appointment_time: string;
   status: string;
 };
+type Payment = {
+  id: string;
+  amount: number;
+  status: string;
+  appointment_id: string;
+};
+
+const RECURRING_SERVICES = new Set([
+  "Join The Handstand Community",
+  "The Discipline & Mindset Community",
+]);
+
 export const Route = createFileRoute("/admin/")({
   head: () => ({
     meta: [
-      { title: "Doctor Dashboard | BrightSmile" },
-      { name: "description", content: "Clinic operations dashboard." },
+      { title: "Coach Admin Dashboard | Luka Moves" },
+      { name: "description", content: "High-performance coaching operations dashboard." },
     ],
   }),
   component: Dashboard,
 });
 function Dashboard() {
-  const { data, loading, error, reload } = useClinicData<Appointment>("appointments");
-  const paid = data.filter((a) => a.status === "PAID").length;
-  const completed = data.filter((a) => a.status === "COMPLETED").length;
-  const upcoming = data
+  const { data: appts, loading, error, reload } = useClinicData<Appointment>("appointments");
+  const { data: payments } = useClinicData<Payment>("payments");
+
+  const successful = payments.filter((p) => p.status === "SUCCESS");
+  const apptById = new Map(appts.map((a) => [a.id, a]));
+  const mrr = successful
+    .filter((p) => {
+      const a = apptById.get(p.appointment_id);
+      return a && RECURRING_SERVICES.has(a.service);
+    })
+    .reduce((sum, p) => sum + Number(p.amount), 0);
+  const oneTime = successful
+    .filter((p) => {
+      const a = apptById.get(p.appointment_id);
+      return !a || !RECURRING_SERVICES.has(a.service);
+    })
+    .reduce((sum, p) => sum + Number(p.amount), 0);
+
+  const upcoming = appts
     .filter((a) => a.status !== "CANCELLED" && a.status !== "COMPLETED")
     .slice(0, 6);
+
   return (
     <AuthGuard>
-      <AdminShell title="Dashboard" subtitle="A live view of your virtual clinic">
+      <AdminShell title="Dashboard" subtitle="Your coaching business at a glance">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[
-            [CalendarCheck, "Total bookings", data.length],
-            [IndianRupee, "Paid consults", paid],
-            [Video, "Upcoming", upcoming.length],
-            [CreditCard, "Completed", completed],
+            [DollarSign, "One-time sales", `$${oneTime.toFixed(2)}`],
+            [Repeat, "Monthly recurring (MRR)", `$${mrr.toFixed(2)}`],
+            [CalendarCheck, "Total bookings", appts.length],
+            [Video, "Upcoming sessions", upcoming.length],
           ].map(([Icon, label, value]) => {
             const I = Icon as typeof CalendarCheck;
             return (
@@ -56,17 +84,17 @@ function Dashboard() {
                   <I />
                 </span>
                 <p>{label as string}</p>
-                <strong>{value as number}</strong>
+                <strong>{value as string | number}</strong>
               </div>
             );
           })}
         </div>
-        <section className="mt-7 overflow-hidden rounded-2xl border border-border bg-background">
+        <section className="mt-7 overflow-hidden rounded-2xl border border-border bg-card">
           <div className="flex items-center justify-between border-b border-border p-5">
             <div>
-              <h2 className="font-display text-xl font-bold">Upcoming consultations</h2>
+              <h2 className="font-display text-xl font-bold">Upcoming coaching calls</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Automatically refreshes when bookings change
+                Live calendar of your next sessions · auto-refreshes
               </p>
             </div>
             <Button variant="outline" asChild>
@@ -78,14 +106,16 @@ function Dashboard() {
           ) : error ? (
             <div className="p-10 text-center">
               <p className="font-semibold text-destructive">Dashboard data could not be loaded.</p>
-              <Button className="mt-4" variant="outline" onClick={reload}>Try again</Button>
+              <Button className="mt-4" variant="outline" onClick={reload}>
+                Try again
+              </Button>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Patient</TableHead>
-                  <TableHead>Service</TableHead>
+                  <TableHead>Client</TableHead>
+                  <TableHead>Program</TableHead>
                   <TableHead>Date & time</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
@@ -106,7 +136,7 @@ function Dashboard() {
                 {!upcoming.length && (
                   <TableRow>
                     <TableCell colSpan={4} className="h-28 text-center text-muted-foreground">
-                      No upcoming consultations yet.
+                      No upcoming sessions yet.
                     </TableCell>
                   </TableRow>
                 )}

@@ -1,33 +1,33 @@
 import { Link } from "@tanstack/react-router";
-import { Menu, Stethoscope } from "lucide-react";
+import { Menu, Activity } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
 const nav = [
   { label: "Home", to: "/" },
-  { label: "Services", to: "/" },
+  { label: "Programs", to: "/" },
   { label: "Contact", to: "/contact" },
 ] as const;
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/88 backdrop-blur-xl">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-8">
-        <Link to="/" className="flex items-center gap-3 font-display text-lg font-bold">
+        <Link to="/" className="flex items-center gap-3 font-display text-lg font-bold tracking-tight">
           <span className="grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground">
-            <Stethoscope className="size-5" />
+            <Activity className="size-5" strokeWidth={2.5} />
           </span>
           <span>
-            BrightSmile<span className="text-primary"> Virtual</span>
+            LUKA<span className="text-primary"> MOVES</span>
           </span>
         </Link>
         <nav className="hidden items-center gap-8 md:flex" aria-label="Main navigation">
           {nav.map((item) =>
-            item.label === "Services" ? (
+            item.label === "Programs" ? (
               <a
                 key={item.label}
-                href="/#services"
+                href="/#programs"
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 {item.label}
@@ -42,14 +42,11 @@ export function SiteHeader() {
               </Link>
             ),
           )}
-          <Link
-            to="/admin"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground"
-          >
-            Doctor login
+          <Link to="/admin" className="text-sm font-medium text-muted-foreground hover:text-foreground">
+            Coach login
           </Link>
           <Button variant="hero" asChild>
-            <Link to="/book">Book appointment</Link>
+            <Link to="/book">Book a session</Link>
           </Button>
         </nav>
         <Button
@@ -57,7 +54,7 @@ export function SiteHeader() {
           variant="ghost"
           size="icon"
           aria-label="Toggle menu"
-          onClick={() => setOpen((value) => !value)}
+          onClick={() => setOpen((v) => !v)}
         >
           <Menu />
         </Button>
@@ -65,12 +62,8 @@ export function SiteHeader() {
       {open && (
         <nav className="grid gap-2 border-t border-border bg-background p-5 md:hidden">
           {nav.map((item) =>
-            item.label === "Services" ? (
-              <a
-                key={item.label}
-                href="/#services"
-                className="rounded-lg px-3 py-2 text-sm font-medium"
-              >
+            item.label === "Programs" ? (
+              <a key={item.label} href="/#programs" className="rounded-lg px-3 py-2 text-sm font-medium">
                 {item.label}
               </a>
             ) : (
@@ -85,7 +78,7 @@ export function SiteHeader() {
             ),
           )}
           <Button asChild>
-            <Link to="/book">Book appointment</Link>
+            <Link to="/book">Book a session</Link>
           </Button>
         </nav>
       )}

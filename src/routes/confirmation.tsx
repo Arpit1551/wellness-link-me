@@ -10,8 +10,8 @@ export const Route = createFileRoute("/confirmation")({
   }),
   head: () => ({
     meta: [
-      { title: "Appointment Confirmed | BrightSmile" },
-      { name: "description", content: "Your BrightSmile virtual consultation is confirmed." },
+      { title: "Session Confirmed | Luka Moves" },
+      { name: "description", content: "Your Luka Moves coaching session is confirmed." },
     ],
   }),
   component: Confirmation,
@@ -31,32 +31,28 @@ function Confirmation() {
   return (
     <PageShell>
       <section className="booking-wash grid min-h-[calc(100vh-5rem)] place-items-center px-5 py-12">
-        <div className="w-full max-w-2xl rounded-3xl border border-border bg-background p-7 text-center shadow-2xl shadow-primary/10 md:p-11">
+        <div className="w-full max-w-2xl rounded-3xl border border-border bg-card p-7 text-center shadow-2xl shadow-primary/15 md:p-11">
           <CheckCircle2 className="mx-auto size-16 text-success" />
           <p className="mt-5 text-xs font-bold uppercase tracking-[.2em] text-success">
             Payment successful
           </p>
-          <h1 className="mt-2 font-display text-4xl font-bold">Your appointment is confirmed</h1>
+          <h1 className="mt-2 font-display text-4xl font-bold">You're booked with Luka</h1>
           <p className="mx-auto mt-3 max-w-lg text-muted-foreground">
-            A confirmation has been prepared for your email. Save your private meeting link below.
+            A confirmation is on its way. Save your private meeting link below — see you on the mat.
           </p>
-          <div className="mt-8 grid gap-4 rounded-2xl bg-muted/60 p-5 text-left sm:grid-cols-2">
+          <div className="mt-8 grid gap-4 rounded-2xl border border-border bg-muted/50 p-5 text-left sm:grid-cols-2">
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Service
-              </p>
-              <p className="mt-1 font-semibold">{data?.service ?? "Virtual consultation"}</p>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Program</p>
+              <p className="mt-1 font-semibold">{data?.service ?? "Coaching session"}</p>
             </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Date & time
-              </p>
+              <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Date & time</p>
               <p className="mt-1 font-semibold">
                 {data ? `${data.appointment_date} · ${data.appointment_time}` : "Loading…"}
               </p>
             </div>
           </div>
-          <div className="mt-5 flex items-center gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4 text-left">
+          <div className="mt-5 flex items-center gap-3 rounded-2xl border border-primary/25 bg-primary/5 p-4 text-left">
             <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground">
               <Video />
             </span>
@@ -77,15 +73,10 @@ function Confirmation() {
             </Button>
           </div>
           <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button
-              variant="hero"
-              size="lg"
-              disabled={!data?.meeting_link}
-              asChild={Boolean(data?.meeting_link)}
-            >
+            <Button variant="hero" size="lg" disabled={!data?.meeting_link} asChild={Boolean(data?.meeting_link)}>
               {data?.meeting_link ? (
                 <a href={data.meeting_link} target="_blank" rel="noreferrer">
-                  Join meeting <ExternalLink />
+                  Join session <ExternalLink />
                 </a>
               ) : (
                 "Preparing link…"

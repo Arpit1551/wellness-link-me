@@ -8,11 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact BrightSmile Virtual Dental" },
-      {
-        name: "description",
-        content: "Contact BrightSmile for questions about virtual dental consultations.",
-      },
+      { title: "Contact Luka Moves" },
+      { name: "description", content: "Get in touch with Coach Luka about coaching and programs." },
     ],
   }),
   component: Contact,
@@ -21,16 +18,16 @@ function Contact() {
   return (
     <PageShell>
       <section className="hero-wash px-5 py-20 text-center">
-        <p className="eyebrow">Contact us</p>
-        <h1 className="section-title">Get in touch</h1>
+        <p className="eyebrow">Contact</p>
+        <h1 className="section-title">Get in touch with Luka</h1>
         <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-          We’re here to answer questions about our services and your upcoming appointment.
+          Questions about 1-1 coaching, custom programs, or community access? Drop a note.
         </p>
       </section>
       <section className="px-5 py-16">
         <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-[1.6fr_1fr]">
           <form
-            className="rounded-3xl border border-border p-7 shadow-sm"
+            className="rounded-3xl border border-border bg-card p-7 shadow-sm"
             onSubmit={(e) => e.preventDefault()}
           >
             <h2 className="font-display text-2xl font-bold">Send a message</h2>
@@ -54,13 +51,13 @@ function Contact() {
           </form>
           <aside className="space-y-4">
             {[
-              [Mail, "Email", "care@brightsmile.example"],
-              [Phone, "Phone", "+91 98765 43210"],
-              [MapPin, "Availability", "Online, across India"],
+              [Mail, "Email", "coach@lukamoves.example"],
+              [Phone, "Phone", "+1 (555) 012-3456"],
+              [MapPin, "Availability", "Online · Coaching worldwide"],
             ].map(([Icon, title, text]) => {
               const I = Icon as typeof Mail;
               return (
-                <div key={title as string} className="flex gap-4 rounded-2xl bg-muted/60 p-5">
+                <div key={title as string} className="flex gap-4 rounded-2xl border border-border bg-card p-5">
                   <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
                     <I />
                   </span>

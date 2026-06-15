@@ -36,7 +36,7 @@ type Appt = {
   meeting_link: string | null;
 };
 export const Route = createFileRoute("/admin/appointments")({
-  head: () => ({ meta: [{ title: "Appointments | BrightSmile Admin" }] }),
+  head: () => ({ meta: [{ title: "Coaching Calls | Luka Moves Admin" }] }),
   component: Appointments,
 });
 function Appointments() {
@@ -64,20 +64,20 @@ function Appointments() {
       await update({ data: { appointmentId: id, status } });
       await reload();
     } catch (cause) {
-      setActionError(cause instanceof Error ? cause.message : "The appointment could not be updated.");
+      setActionError(cause instanceof Error ? cause.message : "The session could not be updated.");
     } finally {
       setUpdatingId("");
     }
   };
   return (
     <AuthGuard>
-      <AdminShell title="Appointments" subtitle="Review and manage patient bookings">
+      <AdminShell title="Coaching Calls" subtitle="Review and manage athlete bookings">
         <div className="mb-5 flex flex-col gap-3 sm:flex-row">
           <div className="relative">
             <Search className="absolute left-3 top-3 size-4 text-muted-foreground" />
             <Input
               className="h-10 pl-9"
-              placeholder="Search patient or status…"
+              placeholder="Search athlete or program…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
@@ -96,19 +96,19 @@ function Appointments() {
           </Select>
         </div>
         {actionError && <p className="mb-4 rounded-xl bg-destructive/10 p-3 text-sm text-destructive">{actionError}</p>}
-        <section className="overflow-hidden rounded-2xl border border-border bg-background">
+        <section className="overflow-hidden rounded-2xl border border-border bg-card">
           {loading ? (
             <AdminLoading />
           ) : error ? (
             <div className="p-10 text-center">
-              <p className="font-semibold text-destructive">Appointments could not be loaded.</p>
+              <p className="font-semibold text-destructive">Sessions could not be loaded.</p>
               <Button className="mt-4" variant="outline" onClick={reload}>Try again</Button>
             </div>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Patient</TableHead>
+                  <TableHead>Athlete</TableHead>
                   <TableHead>Date & time</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Meeting</TableHead>
@@ -172,7 +172,7 @@ function Appointments() {
                 {!filtered.length && (
                   <TableRow>
                     <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
-                      No appointments found.
+                      No sessions found.
                     </TableCell>
                   </TableRow>
                 )}

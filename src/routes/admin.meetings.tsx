@@ -13,7 +13,7 @@ type Meeting = {
   end_time: string;
 };
 export const Route = createFileRoute("/admin/meetings")({
-  head: () => ({ meta: [{ title: "Meetings | BrightSmile Admin" }] }),
+  head: () => ({ meta: [{ title: "Meetings | Luka Moves Admin" }] }),
   component: Meetings,
 });
 function Meetings() {
@@ -23,18 +23,18 @@ function Meetings() {
   const past = data.filter((m) => new Date(m.end_time).getTime() < now);
   return (
     <AuthGuard>
-      <AdminShell title="Meetings" subtitle="Join upcoming sessions and review past consultations">
+      <AdminShell title="Meetings" subtitle="Join upcoming coaching calls and review past sessions">
         {loading ? (
           <AdminLoading />
         ) : error ? (
-          <div className="rounded-2xl border border-border bg-background p-10 text-center">
+          <div className="rounded-2xl border border-border bg-card p-10 text-center">
             <p className="font-semibold text-destructive">Meetings could not be loaded.</p>
             <Button className="mt-4" variant="outline" onClick={reload}>Try again</Button>
           </div>
         ) : (
           <div className="space-y-8">
-            <MeetingSection title="Upcoming meetings" items={upcoming} />
-            <MeetingSection title="Past meetings" items={past} />
+            <MeetingSection title="Upcoming sessions" items={upcoming} />
+            <MeetingSection title="Past sessions" items={past} />
           </div>
         )}
       </AdminShell>
@@ -56,14 +56,14 @@ function MeetingSection({ title, items }: { title: string; items: Meeting[] }) {
           return (
             <article
               key={m.id}
-              className="rounded-2xl border border-border bg-background p-5 shadow-sm"
+              className="rounded-2xl border border-border bg-card p-5 shadow-sm"
             >
               <div className="flex items-start gap-4">
                 <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
                   <Video />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="font-bold">Virtual consultation</p>
+                  <p className="font-bold">Coaching call</p>
                   <p className="mt-1 text-sm text-muted-foreground">{start.toLocaleString()}</p>
                   <p className="mt-3 text-xs font-bold uppercase tracking-wider text-primary">
                     {countdown}

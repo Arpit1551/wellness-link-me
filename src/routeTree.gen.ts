@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as PurchaseRouteImport } from './routes/purchase'
 import { Route as PaymentRouteImport } from './routes/payment'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ConfirmationRouteImport } from './routes/confirmation'
@@ -26,6 +27,11 @@ import { Route as AdminAppointmentsRouteImport } from './routes/admin.appointmen
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PurchaseRoute = PurchaseRouteImport.update({
+  id: '/purchase',
+  path: '/purchase',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PaymentRoute = PaymentRouteImport.update({
@@ -97,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/confirmation': typeof ConfirmationRoute
   '/contact': typeof ContactRoute
   '/payment': typeof PaymentRoute
+  '/purchase': typeof PurchaseRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
   '/admin/meetings': typeof AdminMeetingsRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   '/confirmation': typeof ConfirmationRoute
   '/contact': typeof ContactRoute
   '/payment': typeof PaymentRoute
+  '/purchase': typeof PurchaseRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
   '/admin/meetings': typeof AdminMeetingsRoute
@@ -127,6 +135,7 @@ export interface FileRoutesById {
   '/confirmation': typeof ConfirmationRoute
   '/contact': typeof ContactRoute
   '/payment': typeof PaymentRoute
+  '/purchase': typeof PurchaseRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
   '/admin/meetings': typeof AdminMeetingsRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/confirmation'
     | '/contact'
     | '/payment'
+    | '/purchase'
     | '/sitemap.xml'
     | '/admin/appointments'
     | '/admin/meetings'
@@ -158,6 +168,7 @@ export interface FileRouteTypes {
     | '/confirmation'
     | '/contact'
     | '/payment'
+    | '/purchase'
     | '/sitemap.xml'
     | '/admin/appointments'
     | '/admin/meetings'
@@ -173,6 +184,7 @@ export interface FileRouteTypes {
     | '/confirmation'
     | '/contact'
     | '/payment'
+    | '/purchase'
     | '/sitemap.xml'
     | '/admin/appointments'
     | '/admin/meetings'
@@ -189,6 +201,7 @@ export interface RootRouteChildren {
   ConfirmationRoute: typeof ConfirmationRoute
   ContactRoute: typeof ContactRoute
   PaymentRoute: typeof PaymentRoute
+  PurchaseRoute: typeof PurchaseRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
 }
 
@@ -199,6 +212,13 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/purchase': {
+      id: '/purchase'
+      path: '/purchase'
+      fullPath: '/purchase'
+      preLoaderRoute: typeof PurchaseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/payment': {
@@ -314,6 +334,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfirmationRoute: ConfirmationRoute,
   ContactRoute: ContactRoute,
   PaymentRoute: PaymentRoute,
+  PurchaseRoute: PurchaseRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
 }
 export const routeTree = rootRouteImport

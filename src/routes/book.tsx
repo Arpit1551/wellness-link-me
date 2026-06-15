@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { CalendarDays, Check, Clock, ShieldCheck, Sparkles, Video } from "lucide-react";
+import { CalendarDays, Check, Clock, Flame, Video } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { PageShell } from "@/components/page-shell";
 import { Button } from "@/components/ui/button";
@@ -10,29 +10,47 @@ import { Textarea } from "@/components/ui/textarea";
 import { createBooking } from "@/lib/clinic.functions";
 
 export const Route = createFileRoute("/book")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    service: typeof s.service === "string" ? s.service : "",
+  }),
   head: () => ({
     meta: [
-      { title: "Book Online Dental Appointment | BrightSmile" },
+      { title: "Book a Coaching Session | Luka Moves" },
       {
         name: "description",
         content:
-          "Choose a service, date, and time for your private BrightSmile virtual dental consultation.",
+          "Reserve a 1-1 coaching call or 12-week mobility plan assessment with Coach Luka.",
       },
     ],
   }),
   component: Booking,
 });
+
 const services = [
-  { name: "Dental Consultation", icon: Video, desc: "Assessment or second opinion" },
-  { name: "Whitening Advice", icon: Sparkles, desc: "Safe, tailored recommendations" },
-  { name: "Oral Health Guidance", icon: ShieldCheck, desc: "Prevention and care planning" },
+  {
+    name: "1-1 Coaching Call with Luka",
+    icon: Video,
+    desc: "45-min video session with Coach Luka",
+    price: "$199.99",
+  },
+  {
+    name: "Custom 12-Week Mobility & Flexibility Plan",
+    icon: Flame,
+    desc: "Premium onboarding · starts with assessment",
+    price: "$499",
+  },
 ];
+
 const times = ["09:00", "09:30", "10:00", "10:30", "11:30", "14:00", "14:30", "15:30"];
+
 function Booking() {
   const navigate = useNavigate();
+  const { service: preselected } = Route.useSearch();
   const create = useServerFn(createBooking);
   const [step, setStep] = useState(1);
-  const [service, setService] = useState(services[0].name);
+  const [service, setService] = useState(
+    services.find((s) => s.name === preselected)?.name ?? services[0].name,
+  );
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [name, setName] = useState("");
@@ -42,15 +60,17 @@ function Booking() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const minDate = new Date(Date.now() + 86400000).toISOString().slice(0, 10);
+
   const next = () => {
     setError("");
     if (step === 1 && !service) return;
     if (step === 2 && (!date || !time)) {
-      setError("Choose a date and time to continue.");
+      setError("Pick a date and time to continue.");
       return;
     }
     setStep(step + 1);
   };
+
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -77,12 +97,13 @@ function Booking() {
       setLoading(false);
     }
   };
+
   return (
     <PageShell>
       <section className="booking-wash min-h-[calc(100vh-5rem)] px-5 py-12">
         <div className="mx-auto max-w-4xl">
           <div className="mx-auto mb-10 flex max-w-lg items-start justify-between">
-            {["Service", "Schedule", "Details"].map((label, i) => (
+            {["Program", "Schedule", "Details"].map((label, i) => (
               <div key={label} className="relative flex flex-1 flex-col items-center gap-2">
                 <span
                   className={`z-10 grid size-10 place-items-center rounded-full border-4 border-background font-bold shadow-sm ${step > i ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}
@@ -98,31 +119,34 @@ function Booking() {
               </div>
             ))}
           </div>
-          <div className="overflow-hidden rounded-3xl border border-border bg-background shadow-2xl shadow-primary/8">
+          <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-2xl shadow-primary/10">
             <div className="border-b border-border px-6 py-6 md:px-9">
               <p className="text-xs font-bold uppercase tracking-[.18em] text-primary">
                 Step {step} of 3
               </p>
               <h1 className="mt-2 font-display text-3xl font-bold">
                 {step === 1
-                  ? "What can we help with?"
+                  ? "Pick your coaching tier"
                   : step === 2
-                    ? "Choose a convenient time"
-                    : "Tell us about yourself"}
+                    ? "Choose a session time"
+                    : "Tell us about you"}
               </h1>
             </div>
             <div className="p-6 md:p-9">
               {step === 1 && (
-                <div className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-2">
                   {services.map((s) => (
                     <button
                       key={s.name}
                       onClick={() => setService(s.name)}
                       className={`group rounded-2xl border p-5 text-left transition-all ${service === s.name ? "border-primary bg-primary/5 shadow-md" : "border-border hover:border-primary/40"}`}
                     >
-                      <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
-                        <s.icon />
-                      </span>
+                      <div className="flex items-start justify-between">
+                        <span className="grid size-11 place-items-center rounded-xl bg-primary/10 text-primary">
+                          <s.icon />
+                        </span>
+                        <span className="price-tag text-lg">{s.price}</span>
+                      </div>
                       <h2 className="mt-5 font-display text-lg font-bold">{s.name}</h2>
                       <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
                     </button>
@@ -132,7 +156,7 @@ function Booking() {
               {step === 2 && (
                 <div className="grid gap-8 md:grid-cols-2">
                   <div>
-                    <Label htmlFor="date">Appointment date</Label>
+                    <Label htmlFor="date">Session date</Label>
                     <div className="relative mt-2">
                       <CalendarDays className="absolute left-3 top-3 size-5 text-muted-foreground" />
                       <Input
@@ -167,53 +191,22 @@ function Booking() {
                 <form id="booking-form" onSubmit={submit} className="grid gap-5 md:grid-cols-2">
                   <div>
                     <Label htmlFor="name">Full name</Label>
-                    <Input
-                      id="name"
-                      className="mt-2 h-11"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      minLength={2}
-                      maxLength={100}
-                      required
-                    />
+                    <Input id="name" className="mt-2 h-11" value={name} onChange={(e) => setName(e.target.value)} minLength={2} maxLength={100} required />
                   </div>
                   <div>
                     <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      className="mt-2 h-11"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      maxLength={255}
-                      required
-                    />
+                    <Input id="email" type="email" className="mt-2 h-11" value={email} onChange={(e) => setEmail(e.target.value)} maxLength={255} required />
                   </div>
                   <div>
                     <Label htmlFor="phone">Phone</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      className="mt-2 h-11"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      minLength={7}
-                      maxLength={30}
-                      required
-                    />
+                    <Input id="phone" type="tel" className="mt-2 h-11" value={phone} onChange={(e) => setPhone(e.target.value)} minLength={7} maxLength={30} required />
                   </div>
                   <div className="md:col-span-2">
                     <Label htmlFor="notes">
-                      Anything the doctor should know?{" "}
+                      Goals or anything Luka should know?{" "}
                       <span className="text-muted-foreground">(optional)</span>
                     </Label>
-                    <Textarea
-                      id="notes"
-                      className="mt-2"
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      maxLength={1000}
-                    />
+                    <Textarea id="notes" className="mt-2" value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={1000} />
                   </div>
                 </form>
               )}
@@ -223,11 +216,7 @@ function Booking() {
                 </p>
               )}
               <div className="mt-9 flex items-center justify-between border-t border-border pt-6">
-                <Button
-                  variant="ghost"
-                  disabled={step === 1 || loading}
-                  onClick={() => setStep(step - 1)}
-                >
+                <Button variant="ghost" disabled={step === 1 || loading} onClick={() => setStep(step - 1)}>
                   Back
                 </Button>
                 {step < 3 ? (
@@ -236,7 +225,7 @@ function Booking() {
                   </Button>
                 ) : (
                   <Button form="booking-form" size="lg" disabled={loading}>
-                    {loading ? "Creating booking…" : "Proceed to payment"}
+                    {loading ? "Reserving slot…" : "Proceed to payment"}
                   </Button>
                 )}
               </div>

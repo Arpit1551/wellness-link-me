@@ -30,12 +30,11 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         setState("ready");
         return;
       }
-      // Not a doctor — check if any doctors exist
       try {
         const { count } = await getDoctorCount();
         setDoctorCount(count);
       } catch {
-        setDoctorCount(999); // hide bootstrap on error
+        setDoctorCount(999);
       }
       setState("forbidden");
     });
@@ -51,7 +50,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
         setBootMsg(result.message);
       }
     } catch (e: any) {
-      setBootMsg(e.message || "Failed to create admin");
+      setBootMsg(e.message || "Failed to create coach admin");
     } finally {
       setBooting(false);
     }
@@ -59,7 +58,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   if (state === "loading")
     return (
-      <div className="grid min-h-screen place-items-center bg-muted/40">
+      <div className="grid min-h-screen place-items-center bg-background">
         <div
           className="size-9 animate-spin rounded-full border-2 border-primary border-t-transparent"
           aria-label="Loading"
@@ -69,28 +68,22 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   if (state === "forbidden")
     return (
-      <div className="grid min-h-screen place-items-center bg-muted/40 p-5 text-center">
+      <div className="grid min-h-screen place-items-center bg-background p-5 text-center">
         <div className="max-w-sm">
-          <h1 className="font-display text-3xl font-bold">Doctor access required</h1>
+          <h1 className="font-display text-3xl font-bold">Coach access required</h1>
           <p className="mt-3 text-muted-foreground">
-            This area is restricted to the clinic owner account.
+            This area is restricted to the Luka Moves coach account.
           </p>
           {doctorCount === 0 && (
-            <div className="mt-6 rounded-2xl border border-dashed border-border bg-background p-5">
+            <div className="mt-6 rounded-2xl border border-dashed border-border bg-card p-5">
               <p className="text-sm text-muted-foreground">
-                No clinic admin exists yet. You can bootstrap yourself as the first admin.
+                No coach admin exists yet. You can bootstrap yourself as the first coach.
               </p>
-              <Button
-                className="mt-4 w-full"
-                onClick={handleBootstrap}
-                disabled={booting}
-              >
+              <Button className="mt-4 w-full" onClick={handleBootstrap} disabled={booting}>
                 <ShieldPlus className="mr-2 size-4" />
-                {booting ? "Setting up…" : "Become Admin"}
+                {booting ? "Setting up…" : "Become Coach Admin"}
               </Button>
-              {bootMsg && (
-                <p className="mt-3 text-sm text-destructive">{bootMsg}</p>
-              )}
+              {bootMsg && <p className="mt-3 text-sm text-destructive">{bootMsg}</p>}
             </div>
           )}
           <a className="mt-6 inline-block font-semibold text-primary" href="/">

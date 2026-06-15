@@ -6,11 +6,25 @@ const bookingSchema = z.object({
   patientName: z.string().trim().min(2).max(100),
   patientEmail: z.string().trim().email().max(255),
   patientPhone: z.string().trim().min(7).max(30),
-  service: z.string().trim().min(2).max(100),
+  service: z.string().trim().min(2).max(120),
   appointmentDate: z.string().date(),
   appointmentTime: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
   notes: z.string().trim().max(1000).optional(),
 });
+
+// Service pricing in USD (cents stored as integer dollars)
+const PRICING: Record<string, number> = {
+  "1-1 Coaching Call with Luka": 199.99,
+  "Custom 12-Week Mobility & Flexibility Plan": 499,
+  "30-Day Foundation Protocol": 97,
+  "Beginners Handstand Course": 39.97,
+  "Join The Handstand Community": 29.99,
+  "The Discipline & Mindset Community": 29.99,
+};
+
+function priceFor(service: string): number {
+  return PRICING[service] ?? 199.99;
+}
 
 export const createBooking = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -31,12 +45,12 @@ export const createBooking = createServerFn({ method: "POST" })
         service: data.service,
         appointment_date: data.appointmentDate,
         appointment_time: data.appointmentTime,
-        duration: setting?.appointment_duration ?? 15,
+        duration: setting?.appointment_duration ?? 45,
         notes: data.notes || null,
       })
       .select("id")
       .single();
-    if (error || !appointment) throw new Error(error?.message || "Unable to create appointment");
+    if (error || !appointment) throw new Error(error?.message || "Unable to create booking");
     return appointment;
   });
 
@@ -50,24 +64,20 @@ export const completeTestPayment = createServerFn({ method: "POST" })
       .eq("id", data.appointmentId)
       .eq("patient_id", context.userId)
       .single();
-    if (error || !appointment) throw new Error("Appointment not found");
-    const { data: setting } = await context.supabase
-      .from("clinic_settings")
-      .select("consultation_fee")
-      .limit(1)
-      .single();
+    if (error || !appointment) throw new Error("Booking not found");
     const start = new Date(`${appointment.appointment_date}T${appointment.appointment_time}`);
     const end = new Date(start.getTime() + appointment.duration * 60_000);
-    const meetLink = `https://meet.google.com/lookup/brightsmile-${appointment.id.slice(0, 8)}`;
+    const meetLink = `https://meet.google.com/lookup/lukamoves-${appointment.id.slice(0, 8)}`;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const paymentId = `pay_test_${crypto.randomUUID().replaceAll("-", "").slice(0, 16)}`;
+    const amount = priceFor(appointment.service);
     const { error: paymentError } = await supabaseAdmin.from("payments").upsert(
       {
         appointment_id: appointment.id,
         razorpay_order_id: `order_test_${appointment.id.slice(0, 12)}`,
         razorpay_payment_id: paymentId,
-        amount: setting?.consultation_fee ?? 999,
-        currency: "INR",
+        amount,
+        currency: "USD",
         status: "SUCCESS",
       },
       { onConflict: "appointment_id" },
@@ -86,7 +96,7 @@ export const completeTestPayment = createServerFn({ method: "POST" })
       .from("appointments")
       .update({ status: "PAID", meeting_link: meetLink })
       .eq("id", appointment.id);
-    return { appointmentId: appointment.id, paymentId, meetLink };
+    return { appointmentId: appointment.id, paymentId, meetLink, amount };
   });
 
 export const updateAppointmentStatus = createServerFn({ method: "POST" })

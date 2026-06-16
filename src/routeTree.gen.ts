@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as PurchaseRouteImport } from './routes/purchase'
 import { Route as PaymentRouteImport } from './routes/payment'
+import { Route as InsightsRouteImport } from './routes/insights'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ConfirmationRouteImport } from './routes/confirmation'
 import { Route as BookRouteImport } from './routes/book'
@@ -37,6 +38,11 @@ const PurchaseRoute = PurchaseRouteImport.update({
 const PaymentRoute = PaymentRouteImport.update({
   id: '/payment',
   path: '/payment',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InsightsRoute = InsightsRouteImport.update({
+  id: '/insights',
+  path: '/insights',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/book': typeof BookRoute
   '/confirmation': typeof ConfirmationRoute
   '/contact': typeof ContactRoute
+  '/insights': typeof InsightsRoute
   '/payment': typeof PaymentRoute
   '/purchase': typeof PurchaseRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/book': typeof BookRoute
   '/confirmation': typeof ConfirmationRoute
   '/contact': typeof ContactRoute
+  '/insights': typeof InsightsRoute
   '/payment': typeof PaymentRoute
   '/purchase': typeof PurchaseRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/book': typeof BookRoute
   '/confirmation': typeof ConfirmationRoute
   '/contact': typeof ContactRoute
+  '/insights': typeof InsightsRoute
   '/payment': typeof PaymentRoute
   '/purchase': typeof PurchaseRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/book'
     | '/confirmation'
     | '/contact'
+    | '/insights'
     | '/payment'
     | '/purchase'
     | '/sitemap.xml'
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/book'
     | '/confirmation'
     | '/contact'
+    | '/insights'
     | '/payment'
     | '/purchase'
     | '/sitemap.xml'
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '/book'
     | '/confirmation'
     | '/contact'
+    | '/insights'
     | '/payment'
     | '/purchase'
     | '/sitemap.xml'
@@ -200,6 +212,7 @@ export interface RootRouteChildren {
   BookRoute: typeof BookRoute
   ConfirmationRoute: typeof ConfirmationRoute
   ContactRoute: typeof ContactRoute
+  InsightsRoute: typeof InsightsRoute
   PaymentRoute: typeof PaymentRoute
   PurchaseRoute: typeof PurchaseRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
@@ -226,6 +239,13 @@ declare module '@tanstack/react-router' {
       path: '/payment'
       fullPath: '/payment'
       preLoaderRoute: typeof PaymentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/insights': {
+      id: '/insights'
+      path: '/insights'
+      fullPath: '/insights'
+      preLoaderRoute: typeof InsightsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -333,6 +353,7 @@ const rootRouteChildren: RootRouteChildren = {
   BookRoute: BookRoute,
   ConfirmationRoute: ConfirmationRoute,
   ContactRoute: ContactRoute,
+  InsightsRoute: InsightsRoute,
   PaymentRoute: PaymentRoute,
   PurchaseRoute: PurchaseRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,

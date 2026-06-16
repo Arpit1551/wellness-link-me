@@ -1,16 +1,19 @@
 import { Link } from "@tanstack/react-router";
-import { Menu, Activity } from "lucide-react";
+import { Menu, Activity, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { QuickBookModal } from "@/components/quick-book-modal";
 
 const nav = [
   { label: "Home", to: "/" },
   { label: "Programs", to: "/" },
+  { label: "Insights", to: "/insights" },
   { label: "Contact", to: "/contact" },
 ] as const;
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const [book, setBook] = useState(false);
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-5 lg:px-8">
@@ -45,8 +48,8 @@ export function SiteHeader() {
           <Link to="/admin" className="text-sm font-medium text-muted-foreground hover:text-foreground">
             Coach login
           </Link>
-          <Button variant="hero" asChild>
-            <Link to="/book">Book a session</Link>
+          <Button variant="hero" onClick={() => setBook(true)}>
+            <Sparkles className="size-4" /> Book Meeting
           </Button>
         </nav>
         <Button
@@ -77,11 +80,17 @@ export function SiteHeader() {
               </Link>
             ),
           )}
-          <Button asChild>
-            <Link to="/book">Book a session</Link>
+          <Button
+            onClick={() => {
+              setOpen(false);
+              setBook(true);
+            }}
+          >
+            <Sparkles className="size-4" /> Book Meeting
           </Button>
         </nav>
       )}
+      <QuickBookModal open={book} onOpenChange={setBook} />
     </header>
   );
 }

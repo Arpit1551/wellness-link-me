@@ -7,7 +7,6 @@ import { QuickBookModal } from "@/components/quick-book-modal";
 const nav = [
   { label: "Home", to: "/" },
   { label: "Programs", to: "/" },
-  { label: "Insights", to: "/insights" },
   { label: "Contact", to: "/contact" },
 ] as const;
 

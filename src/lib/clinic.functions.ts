@@ -27,18 +27,18 @@ function priceFor(service: string): number {
 }
 
 export const createBooking = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((input) => bookingSchema.parse(input))
-  .handler(async ({ data, context }) => {
-    const { data: setting } = await context.supabase
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: setting } = await supabaseAdmin
       .from("clinic_settings")
       .select("appointment_duration")
       .limit(1)
       .maybeSingle();
-    const { data: appointment, error } = await context.supabase
+    const { data: appointment, error } = await supabaseAdmin
       .from("appointments")
       .insert({
-        patient_id: context.userId,
+        patient_id: null,
         patient_name: data.patientName,
         patient_email: data.patientEmail,
         patient_phone: data.patientPhone,
@@ -55,20 +55,18 @@ export const createBooking = createServerFn({ method: "POST" })
   });
 
 export const completeTestPayment = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ appointmentId: z.string().uuid() }).parse(input))
-  .handler(async ({ data, context }) => {
-    const { data: appointment, error } = await context.supabase
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: appointment, error } = await supabaseAdmin
       .from("appointments")
       .select("*")
       .eq("id", data.appointmentId)
-      .eq("patient_id", context.userId)
       .single();
     if (error || !appointment) throw new Error("Booking not found");
     const start = new Date(`${appointment.appointment_date}T${appointment.appointment_time}`);
     const end = new Date(start.getTime() + appointment.duration * 60_000);
     const meetLink = `https://meet.google.com/lookup/lukamoves-${appointment.id.slice(0, 8)}`;
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const paymentId = `pay_test_${crypto.randomUUID().replaceAll("-", "").slice(0, 16)}`;
     const amount = priceFor(appointment.service);
     const { error: paymentError } = await supabaseAdmin.from("payments").upsert(

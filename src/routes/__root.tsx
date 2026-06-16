@@ -130,6 +130,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
+      <AiChatbot />
     </QueryClientProvider>
   );
 }

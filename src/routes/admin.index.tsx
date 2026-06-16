@@ -140,27 +140,6 @@ function Dashboard() {
             );
           })}
         </div>
-        <section className="mt-7 overflow-hidden rounded-2xl border border-border bg-card">
-          <div className="flex items-center justify-between border-b border-border p-5">
-            <div>
-              <h2 className="font-display text-xl font-bold">Upcoming coaching calls</h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Live calendar of your next sessions · auto-refreshes
-              </p>
-            </div>
-            <Button variant="outline" asChild>
-              <Link to="/admin/appointments">View all</Link>
-            </Button>
-          </div>
-          {loading ? (
-            <AdminLoading />
-          ) : error ? (
-            <div className="p-10 text-center">
-              <p className="font-semibold text-destructive">Dashboard data could not be loaded.</p>
-              <Button className="mt-4" variant="outline" onClick={reload}>
-                Try again
-              </Button>
-        </div>
 
         <section className="mt-7 grid gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2 overflow-hidden rounded-2xl border border-border bg-card p-6">
@@ -236,6 +215,27 @@ function Dashboard() {
           </div>
         </section>
 
+        <section className="mt-7 overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="flex items-center justify-between border-b border-border p-5">
+            <div>
+              <h2 className="font-display text-xl font-bold">Upcoming coaching calls</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Live calendar of your next sessions · auto-refreshes
+              </p>
+            </div>
+            <Button variant="outline" asChild>
+              <Link to="/admin/appointments">View all</Link>
+            </Button>
+          </div>
+          {loading ? (
+            <AdminLoading />
+          ) : error ? (
+            <div className="p-10 text-center">
+              <p className="font-semibold text-destructive">Dashboard data could not be loaded.</p>
+              <Button className="mt-4" variant="outline" onClick={reload}>
+                Try again
+              </Button>
+            </div>
           ) : (
             <Table>
               <TableHeader>
@@ -270,6 +270,7 @@ function Dashboard() {
             </Table>
           )}
         </section>
+
       </AdminShell>
     </AuthGuard>
   );

@@ -89,10 +89,7 @@ function Booking() {
       });
       navigate({ to: "/payment", search: { appointment: appt.id } });
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Unable to book";
-      setError(message.includes("Unauthorized") ? "Please sign in before booking." : message);
-      if (message.includes("Unauthorized"))
-        setTimeout(() => window.location.assign("/auth?next=/book"), 900);
+      setError(err instanceof Error ? err.message : "Unable to book");
     } finally {
       setLoading(false);
     }

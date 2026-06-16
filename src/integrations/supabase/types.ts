@@ -25,7 +25,7 @@ export type Database = {
           meeting_link: string | null
           notes: string | null
           patient_email: string
-          patient_id: string
+          patient_id: string | null
           patient_name: string
           patient_phone: string
           service: string
@@ -42,7 +42,7 @@ export type Database = {
           meeting_link?: string | null
           notes?: string | null
           patient_email: string
-          patient_id: string
+          patient_id?: string | null
           patient_name: string
           patient_phone: string
           service: string
@@ -59,7 +59,7 @@ export type Database = {
           meeting_link?: string | null
           notes?: string | null
           patient_email?: string
-          patient_id?: string
+          patient_id?: string | null
           patient_name?: string
           patient_phone?: string
           service?: string

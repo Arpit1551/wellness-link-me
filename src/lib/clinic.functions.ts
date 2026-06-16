@@ -38,7 +38,7 @@ export const createBooking = createServerFn({ method: "POST" })
     const { data: appointment, error } = await supabaseAdmin
       .from("appointments")
       .insert({
-        patient_id: null,
+        patient_id: null as unknown as string,
         patient_name: data.patientName,
         patient_email: data.patientEmail,
         patient_phone: data.patientPhone,

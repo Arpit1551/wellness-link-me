@@ -1,0 +1,10 @@
+ALTER TABLE public.appointments ALTER COLUMN patient_id DROP NOT NULL;
+GRANT SELECT ON public.appointments TO anon;
+GRANT SELECT ON public.payments TO anon;
+GRANT SELECT ON public.meetings TO anon;
+DROP POLICY IF EXISTS "Anon read appointments" ON public.appointments;
+CREATE POLICY "Anon read appointments" ON public.appointments FOR SELECT TO anon USING (true);
+DROP POLICY IF EXISTS "Anon read payments" ON public.payments;
+CREATE POLICY "Anon read payments" ON public.payments FOR SELECT TO anon USING (true);
+DROP POLICY IF EXISTS "Anon read meetings" ON public.meetings;
+CREATE POLICY "Anon read meetings" ON public.meetings FOR SELECT TO anon USING (true);

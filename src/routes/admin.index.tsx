@@ -1,5 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CalendarCheck, DollarSign, Repeat, Video } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import {
+  Activity,
+  BarChart3,
+  CalendarCheck,
+  DollarSign,
+  Repeat,
+  Sparkles,
+  TrendingUp,
+  Video,
+} from "lucide-react";
 import { AdminShell } from "@/components/admin-shell";
 import { AuthGuard } from "@/components/auth-guard";
 import { StatusBadge } from "@/components/status-badge";
